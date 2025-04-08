@@ -22,10 +22,11 @@ $email = trim($_POST['email']);
 $password = trim($_POST['password']);
 
 if (empty($email) || empty($password)) {
-    die("<script>alert('Fields cannot be empty!'); window.location.href = 'login.html';</script>");
+    echo "<script>alert('Fields cannot be empty!'); window.location.href = 'login.html';</script>";
+    exit(); // Add this to stop further execution
 }
 
-// ✅ Check if email already exists
+// Check if email already exists
 $sql_check = "SELECT id FROM users WHERE email = ?";
 $stmt_check = $conn->prepare($sql_check);
 $stmt_check->bind_param("s", $email);
@@ -33,32 +34,35 @@ $stmt_check->execute();
 $stmt_check->store_result();
 
 if ($stmt_check->num_rows > 0) {
-    // ✅ Email already exists, show alert and redirect to login
+    // Email already exists, show alert and redirect to login
     echo "<script>alert('User already exists! Please log in.'); window.location.href = 'login.html';</script>";
-    exit();
+    $stmt_check->close();
+    $conn->close();
+    exit(); // Add this to stop further execution
 }
 $stmt_check->close();
 
-// ✅ Hash the password for security
+// Hash the password for security
 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-// ✅ Insert into database
+// Insert into database
 $sql = "INSERT INTO users (email, password) VALUES (?,?)";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("ss", $email, $hashed_password);
 
 if ($stmt->execute()) {
-    // ✅ Get the newly created user ID
+    // Get the newly created user ID
     $user_id = $stmt->insert_id;
 
-    // ✅ Store user ID in session (User is now logged in)
+    // Store user ID in session (User is now logged in)
     $_SESSION['user_id'] = $user_id;
 
-    // ✅ Redirect to dashboard
+    // Redirect to dashboard
     header("Location: index.html?newUser=true");
-    exit();
 } else {
     echo "<script>alert('Error creating account! Try again.'); window.location.href = 'login.html';</script>";
+    $stmt->close();
+    $conn->close();
 }
 
 $stmt->close();

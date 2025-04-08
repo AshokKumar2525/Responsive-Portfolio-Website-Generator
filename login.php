@@ -1,6 +1,5 @@
 <?php
 session_start();
-header('Content-Type: application/json'); // Set JSON header
 
 // Database connection
 $servername = "localhost";
@@ -20,7 +19,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Validate inputs
     if (empty($email) || empty($password)) {
-        die( "<script>alert('All Fields Are Required.'); window.location.href = 'login.html';</script>");
+        echo "<script>alert('All Fields Are Required.'); window.location.href = 'login.html';</script>";
+        exit();
     }
 
     // Check if email exists
@@ -31,7 +31,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->store_result();
 
     if ($stmt->num_rows === 0) {
-        die( "<script>alert('No Account Found With This Email!'); window.location.href = 'login.html';</script>");
+        echo "<script>alert('No Account Found With This Email!'); window.location.href = 'login.html';</script>";
+        exit();
     }
 
     $stmt->bind_result($user_id, $hashed_password);
@@ -39,25 +40,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Verify password
     if (!password_verify($password, $hashed_password)) {
-        die( "<script>alert('Incorrect Password! Try again.'); window.location.href = 'login.html';</script>");
+        echo "<script>alert('Incorrect Password! Try again.'); window.location.href = 'login.html';</script>";
+        exit();
     }
-
-    // Regenerate session ID to prevent fixation
-    // session_regenerate_id(true);
 
     // Store user ID in session
     $_SESSION['user_id'] = $user_id;
-    // $_SESSION['last_activity'] = time();
-
-    // // Set secure session cookie
-    // setcookie(session_name(), session_id(), [
-    //     'expires' => time() + 86400, // 1 day
-    //     'path' => '/',
-    //     'domain' => '',
-    //     'secure' => true,
-    //     'httponly' => true,
-    //     'samesite' => 'Strict'
-    // ]);
+ 
 
     header("Location: index.html");
     exit;
