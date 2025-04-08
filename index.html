@@ -111,7 +111,87 @@
     </div>
 </body>
 <script>
+    // File size validation (500KB = 500 * 1024 bytes)
+    const MAX_FILE_SIZE = 500 * 1024; 
 
+    // Profile photo validation
+    document.getElementById('photoInput').addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            if (this.files[0].size > MAX_FILE_SIZE) {
+                alert('Profile photo must be less than 500KB');
+                this.value = ''; // Clear the file input
+            } else {
+                // Preview the image
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const container = document.getElementById('profile-photo-container');
+                    container.innerHTML = ''; // Clear previous preview
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.width = '100px';
+                    img.style.height = '100px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '10px';
+                    container.appendChild(img);
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        }
+    });
+
+    // Certifications validation
+    document.getElementById('certificationsInput').addEventListener('change', function(e) {
+        if (this.files) {
+            const previewContainer = document.getElementById('certifications-preview');
+            previewContainer.innerHTML = ''; // Clear previous previews
+            
+            for (let i = 0; i < this.files.length; i++) {
+                if (this.files[i].size > MAX_FILE_SIZE) {
+                    alert(`File "${this.files[i].name}" exceeds 500KB limit and won't be uploaded`);
+                    continue;
+                }
+                
+                // Preview each valid image
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.width = '100px';
+                    img.style.height = '100px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '10px';
+                    img.style.marginRight = '10px';
+                    previewContainer.appendChild(img);
+                }
+                reader.readAsDataURL(this.files[i]);
+            }
+        }
+    });
+
+    // Form submission validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const photoInput = document.getElementById('photoInput');
+        const certInput = document.getElementById('certificationsInput');
+        
+        // Check profile photo size if one is selected
+        if (photoInput.files.length > 0 && photoInput.files[0].size > MAX_FILE_SIZE) {
+            e.preventDefault();
+            alert('Profile photo must be less than 500KB');
+            return false;
+        }
+        
+        // Check certification sizes
+        if (certInput.files.length > 0) {
+            for (let i = 0; i < certInput.files.length; i++) {
+                if (certInput.files[i].size > MAX_FILE_SIZE) {
+                    e.preventDefault();
+                    alert('One or more certification files exceed 500KB limit');
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    });
 </script>
-
 </html>

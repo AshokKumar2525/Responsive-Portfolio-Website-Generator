@@ -64,6 +64,8 @@ function addExperience(entry = {}) {
     container.appendChild(div);
 }
 
+
+
 // Fetch and populate data after login
 document.addEventListener("DOMContentLoaded", function () {
     fetch("data_fetch.php")

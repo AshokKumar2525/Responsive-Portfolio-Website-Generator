@@ -22,7 +22,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
-$upload_base = "Static/images/$user_id/";
+$upload_base = "static/images/$user_id/";
 $profile_folder = $upload_base . "profile/";
 $certifications_folder = $upload_base . "certifications/";
 
@@ -51,6 +51,9 @@ $stmt_fetch->close();
 // Handle Profile Photo Upload
 $imagePath = !empty($existing_photo) ? $existing_photo : "";
 if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
+    if ($_FILES['photo']['size'] > 500000) {
+        die(json_encode(["success" => false, "message" => "Profile photo must be less than 500KB"]));
+    }
     $imageExt = strtolower(pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION));
     $allowedTypes = ["jpg", "jpeg", "png", "webp"];
 
@@ -75,6 +78,9 @@ $certifications_path = !empty($existing_certifications) ? json_decode($existing_
 if (!empty($_FILES['certifications']['name'][0])) {
     foreach ($_FILES['certifications']['name'] as $index => $certFileName) {
         if (!empty($certFileName)) {
+            if ($_FILES['certifications']['size'][$index] > 500000) {
+                die(json_encode(["success" => false, "message" => "Certification file '{$certFileName}' exceeds 500KB limit"]));
+            }
             $certFileName = str_replace(" ", "_", basename($certFileName));
             $certPath = $certifications_folder . $certFileName;
             

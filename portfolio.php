@@ -1,6 +1,5 @@
 <?php
 session_start();
-header("Content-Type: application/json");
 
 // Database connection
 $conn = new mysqli("localhost", "root", "Ashok@123", "portfolio");
